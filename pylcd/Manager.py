@@ -132,6 +132,7 @@ class Manager(object):
         pointer = 0
         for line in range(start_line, end_line + 1):
             if len(output_lines) <= pointer:
-                break
-            self.lcd.set_line(line, output_lines[pointer])
+                self.lcd.set_line(line, '')
+            else:
+                self.lcd.set_line(line, output_lines[pointer])
             pointer += 1

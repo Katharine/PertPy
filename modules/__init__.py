@@ -1,3 +1,7 @@
 import uptime
+import itunes
 
-mods = [uptime]
+mods = (
+    uptime,
+    itunes,
+)
