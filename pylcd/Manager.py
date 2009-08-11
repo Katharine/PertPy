@@ -121,7 +121,17 @@ class Manager(object):
             ints.append(int(line[0:5], 2))
         self.lcd.add_new_character(num, ints)
     
-    def display_string(self, string):
-        for i in range(1, 5):
-            self.manager.remove_string(i)
-        self.lcd.display_string(string)
+    def display_string(self, string, start_line=1, end_line=4):
+        for i in range(start_line, end_line + 1):
+            self.updater.remove_line(i)
+        paras = string.split('\n')
+        output_lines = []
+        for para in paras:
+            lines = textwrap.wrap(para, 20)
+            output_lines.extend(lines)
+        pointer = 0
+        for line in range(start_line, end_line + 1):
+            if len(output_lines) <= pointer:
+                break
+            self.lcd.set_line(line, output_lines[pointer])
+            pointer += 1
