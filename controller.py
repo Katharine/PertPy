@@ -5,11 +5,18 @@ from modules import mods
 from pylcd.Manager import Manager as LCD
 import time
 from threading import Event
+import atexit
+
+def shutdown(lcd):
+    lcd.lcd.lock.acquire()
+    lcd.disable_backlight()
+    lcd.display_string("")
 
 def main():
     lcd = LCD()
     lcd.display_string("PertPy setup in progress...")
     lcd.enable_backlight()
+    atexit.register(shutdown, lcd)
     wait = Event()
     wait.set()
     for mod in mods:
@@ -19,7 +26,7 @@ def main():
     
     lcd.display_string("PertPy Ready...")
     lcd.grab_attention(flashes=2, delay=0.2)
-    time.sleep(3)
+    time.sleep(2)
     while True:
         for mod in mods:
             if hasattr(mod, 'PertModule'):
