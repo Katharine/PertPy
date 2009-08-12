@@ -27,6 +27,6 @@ class PertInterrupt(PertInterruptBase):
                 self.interrupt()
                 display_track(self.lcd, current)
                 self.lcd.grab_attention()
-                time.sleep(15)
+                time.sleep(10)
                 self.release()
             time.sleep(5)
