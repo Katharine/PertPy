@@ -1,3 +1,4 @@
+from __future__ import with_statement
 import threading
 import time
 
@@ -19,14 +20,14 @@ class PertBase(threading.Thread):
     def run(self):
         if not hasattr(self, 'update'):
             return
-        self.wait.wait()
-        self.lcd.display_string('')
+        with self.wait:
+            self.lcd.display_string('')
         while self.running:
-            self.wait.wait()
-            try:
-                self.update()
-            except AttributeError:
-                pass
+            with self.wait:
+                try:
+                    self.update()
+                except AttributeError:
+                    pass
             time.sleep(self.interval)
 
 class PertInterruptBase(threading.Thread):
@@ -37,8 +38,8 @@ class PertInterruptBase(threading.Thread):
         self.interrupter = interrupter
     
     def interrupt(self):
-        self.interrupter.wait()
-        self.interrupter.clear()
+        self.interrupter.acquire()
     
     def release(self):
-        self.interrupter.set()
+        self.lcd.clear_screen()
+        self.interrupter.release()

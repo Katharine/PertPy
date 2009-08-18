@@ -2,6 +2,7 @@ from PertBase import PertInterruptBase
 import socket
 import threading
 import time
+import ConfigParser
 
 class IrssiServer(object):
     def __init__(self, host, port, password, name):
@@ -10,17 +11,13 @@ class IrssiServer(object):
         self.password = password
         self.name = name
 
-NETWORKS = (
-    #IrssiServer('example.com', 6667, 'password', 'nickname'),
-)
-
 class PertIrssi(threading.Thread):
     irssi = None
     lcd = None
     interrupt = None
     nick = '__pertpy'
     def __init__(self, lcd, irssi, interrupt):
-        super(PertIrssi, self).__init__()
+        threading.Thread.__init__(self)
         self.lcd = lcd
         self.irssi = irssi
         self.interrupt = interrupt
@@ -98,24 +95,32 @@ class PertIrssi(threading.Thread):
         else:
             self.lcd.display_string("%s: %s\n<%s> %s" % (self.irssi.name, to, origin, message))
         self.lcd.grab_attention()
-        time.sleep(5)
+        time.sleep(2)
         self.interrupt.release()
     
     def fail(self):
         self.interrupt.interrupt()
         self.lcd.display_string("IRC (%s):\nConnection failed." % self.irssi.name)
         self.lcd.grab_attention()
-        time.sleep(5)
+        time.sleep(2)
         self.interrupt.release()
     
     def disconnected(self):
         self.interrupt.interrupt()
         self.lcd.display_string("IRC (%s):\nDisconnected." % self.irssi.name)
         self.lcd.grab_attention()
-        time.sleep(5)
+        time.sleep(2)
         self.interrupt.release()
 
 class PertInterrupt(PertInterruptBase):
     def run(self):
-        for network in NETWORKS:
-            PertIrssi(self.lcd, network, self)
+        config = ConfigParser.SafeConfigParser()
+        config.read(['config/irssi.conf'])
+        for network in config.sections():
+            server = IrssiServer(
+                config.get(network, 'Host'),
+                config.getint(network, 'Port'),
+                config.get(network, 'Password'),
+                network
+            )
+            PertIrssi(self.lcd, server, self)

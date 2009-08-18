@@ -9,7 +9,7 @@ class PertModule(PertBase):
         else:
             end = uptime.index('user,') - 1
         time = ' '.join(uptime[uptime.index('up')+1:end])
-        load = tuple(uptime[-3:])
+        load = tuple([x.strip(',') for x in uptime[-3:]])
         
         self.lcd.set_line(1, "Up: %s" % time.strip(', '))
         self.lcd.set_line(2, "Load: %s %s %s" % load)

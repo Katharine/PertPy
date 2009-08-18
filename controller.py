@@ -1,40 +1,53 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
-from modules import mods
+from __future__ import with_statement
+import modules
 from pylcd.Manager import Manager as LCD
 import time
-from threading import Event
+from threading import RLock
 import atexit
+import ConfigParser
 
 def shutdown(lcd):
     lcd.lcd.lock.acquire()
     lcd.disable_backlight()
     lcd.display_string("")
 
-def main():
-    lcd = LCD()
+def main():    
+    config = ConfigParser.SafeConfigParser()
+    config.read(['config/general.conf'])
+    lcd = LCD(config.get('Global', 'DisplayPort'))
     lcd.display_string("PertPy setup in progress...")
-    lcd.enable_backlight()
+    if config.getboolean('Global', 'Backlight'):
+        lcd.enable_backlight()
+    else:
+        lcd.disable_backlight()
     atexit.register(shutdown, lcd)
-    wait = Event()
-    wait.set()
-    for mod in mods:
-        if hasattr(mod, 'PertInterrupt'):
-            interrupt = mod.PertInterrupt(lcd, wait)
+    waitlock = RLock()
+    mods = modules.get_modules(config)
+    if not mods:
+        lcd.display_string('No modules loaded.')
+        time.sleep(5)
+        return
+    for module in mods:
+        if hasattr(module, 'PertInterrupt'):
+            interrupt = module.PertInterrupt(lcd, waitlock)
             interrupt.start()
     
     lcd.display_string("PertPy Ready...")
-    lcd.grab_attention(flashes=2, delay=0.2)
-    time.sleep(2)
+    lcd.grab_attention()
+    time.sleep(1)
+    sleep_time = config.getint('Global', 'DisplayTime')
     while True:
         for mod in mods:
+            print mod
             if hasattr(mod, 'PertModule'):
-                print "Loading next module..."
-                module = mod.PertModule(lcd, wait)
-                wait.wait()
-                module.start()
-                time.sleep(15)
+                module = mod.PertModule(lcd, waitlock)
+                with waitlock:
+                    lcd.clear_screen()
+                    module.start()
+                time.sleep(sleep_time)
                 module.stop()
         print "Looping again."
 

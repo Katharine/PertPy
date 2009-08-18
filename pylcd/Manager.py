@@ -10,7 +10,7 @@ import textwrap
 class PeriodicUpdateManager(threading.Thread):
     line_lock = None
     scrolling_lines = []
-    sleep = 0.25
+    sleep = 0.1
     
     def __init__(self, lcd):
         self.line_lock = threading.RLock()
@@ -21,11 +21,15 @@ class PeriodicUpdateManager(threading.Thread):
     
     def update_line(self, line):
         with self.line_lock:
+            current_line = [x for x in self.scrolling_lines if x.line == line.line]
+            if len(current_line) > 0:
+                if current_line[0].content == line.content:
+                    return
             self.remove_line(line.line)
             self.lcd.set_line(line.line, line.prefix + line.content[:(20-len(line.prefix) - len(line.suffix))] + line.suffix)
             # Don't bother doing the whole scrolling thing if it fits anyway...
             if len(line.prefix + line.content + line.suffix) > 20:
-                line.reset_scroll = time.time() + 2
+                line.reset_scroll = time.time() + 0.5
                 self.scrolling_lines.append(line)
     
     def remove_line(self, num):
@@ -38,14 +42,17 @@ class PeriodicUpdateManager(threading.Thread):
                 for line in self.scrolling_lines:
                     if line.reset_scroll is not False:
                         if time.time() >= line.reset_scroll:
-                            line.offset = 0
-                            line.reset_scroll = False
+                            if line.offset > 0:
+                                line.offset = 0
+                                line.reset_scroll = time.time() + 0.5
+                            else:
+                                line.reset_scroll = False
                         else:
                             continue
                     else:
                         line.offset += 1
                     if len(line.content) - line.offset + len(line.prefix) + len(line.suffix) < 20:
-                        line.reset_scroll = time.time() + 2
+                        line.reset_scroll = time.time() + 0.5
                         continue
                     line_display = line.content[line.offset:(20-len(line.prefix)-len(line.suffix)+line.offset)]
                     self.lcd.set_line(line.line, line.prefix + line_display + line.suffix)
@@ -70,7 +77,7 @@ class Manager(object):
             self.lcd = LCD.LCD(port)
         self.updater = PeriodicUpdateManager(self.lcd)
     
-    def grab_attention(self, flashes=3, delay=0.25):
+    def grab_attention(self, flashes=3, delay=0.02):
         for i in range(flashes):
             self.lcd.set_backlight_enabled(not self.backlight_enabled)
             time.sleep(delay)
@@ -80,7 +87,7 @@ class Manager(object):
     def clear_screen(self):
         for i in range(1, 5):
             self.updater.remove_line(i)
-        self.lcd.display_string('')
+        self.lcd.clear_screen()
     
     def set_line(self, number, content, scrolling=False, prefix='', suffix=''):
         if not scrolling:

@@ -89,6 +89,9 @@ class LCD(object):
             for line in lines:
                 self.command(line)
     
+    def clear_screen(self):
+        self.cmd_string(0x01)
+    
     def cmd_string(self, commands):
         if isinstance(commands, int):
             commands = (commands,)
