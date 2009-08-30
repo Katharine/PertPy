@@ -49,6 +49,8 @@ class LCD(object):
         with self.lock:
             self.cmd_string((0x80 | start,))
             for byte in strbytes:
+                if byte > 255:
+                    byte = 255
                 self.command(byte)
     
     def update_line(self, line, pos, text, length=None):
@@ -60,6 +62,8 @@ class LCD(object):
         with self.lock:
             self.cmd_string(0x80 | start)
             for byte in self.string_bytes(text):
+                if byte > 255:
+                    byte = 255
                 self.command(byte)
     
     def display_string(self, string):
