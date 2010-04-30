@@ -19,16 +19,6 @@ if enabled:
             lcd.set_line(1, "Now playing:")
         else:
             # Time display
-            lcd.add_character(1, """
-            11111
-            11111
-            11111
-            11111
-            11111
-            11111
-            11111
-            11111
-            """)
             lcd.add_character(3, """
             11111
             00000
@@ -65,7 +55,7 @@ if enabled:
             pixels = "1" * int((proportion * chars_available - full_chars) * 5)
             partial_char = "11111\n" + (pixels + "\n") * 6 + "11111"
             lcd.add_character(2, partial_char)
-            progress_bar = "\x01" * full_chars
+            progress_bar = "\xFF" * full_chars
             chars = full_chars
             if pixels:
                 progress_bar += "\x02"
