@@ -20,34 +20,34 @@ if enabled:
         else:
             # Time display
             lcd.add_character(3, """
-            11111
-            00000
-            00000
-            00000
-            00000
-            00000
-            00000
-            11111
+            XXXXX
+            
+            
+            
+            
+            
+            
+            XXXXX
             """)
             lcd.add_character(4, """
-            00011
-            00011
-            00111
-            01111
-            01111
-            00111
-            00011
-            00011
+            ___XX
+            ___XX
+            __XXX
+            _XXXX
+            _XXXX
+            __XXX
+            ___XX
+            ___XX
             """)
             lcd.add_character(5, """
-            11000
-            11000
-            11100
-            11110
-            11110
-            11100
-            11000
-            11000
+            XX
+            XX
+            XXX
+            XXXX
+            XXXX
+            XXX
+            XX
+            XX
             """)
             chars_available = 16
             proportion = progress / track.duration()
@@ -64,24 +64,24 @@ if enabled:
             # Status display
             if state == k.playing:
                 lcd.add_character(0, """
-                10000
-                11000
-                11100
-                11110
-                11100
-                11000
-                10000
-                00000
+                X
+                XX
+                XXX
+                XXXX
+                XXX
+                XX
+                X
+                _____
                 """)
             else:
                 lcd.add_character(0, """
-                11011
-                11011
-                11011
-                11011
-                11011
-                11011
-                00000
+                XX XX
+                XX XX
+                XX XX
+                XX XX
+                XX XX
+                XX XX
+                _____
                 """)
             lcd.set_line(1, "\x00 \x04%s\x05" % progress_bar)
         lcd.set_line(2, track.name(), scrolling=True)
