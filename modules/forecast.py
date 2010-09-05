@@ -27,7 +27,7 @@ class PertModule(PertBase):
         for daily in days:
             day = daily.find("date").find("weekday").text[0:3]
             conditions = daily.find("conditions").text
-            self.lcd.set_line(i, "%s: %s" % (day, conditions))
+            self.lcd.set_line(i, conditions, prefix="%s: " % day, scrolling=True)
             i += 1
             if i > 4:
                 break
