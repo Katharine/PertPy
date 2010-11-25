@@ -1,5 +1,7 @@
 from PertBase import PertBase
+
 import subprocess
+import time as thetime
 
 class PertModule(PertBase):
     def update(self):
@@ -13,3 +15,4 @@ class PertModule(PertBase):
         
         self.lcd.set_line(1, "Up: %s" % time.strip(', '))
         self.lcd.set_line(2, "Load: %s %s %s" % load)
+        self.lcd.set_line(4, thetime.strftime('%d %b      %H:%M:%S'))
