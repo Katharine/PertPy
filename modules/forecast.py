@@ -12,7 +12,7 @@ class PertModule(PertBase):
         self.location = config.get("Forecast", "Location")
         
         try:
-            f = urllib2.urlopen("http://api.wunderground.com/auto/wui/geo/ForecastXML/index.xml?query=%s" % self.location)
+            f = urllib2.urlopen("http://api.wunderground.com/auto/wui/geo/ForecastXML/index.xml?query=%s" % self.location, None, 3);
             xml = f.read()
             f.close()
             self.forecast = ET.XML(xml)

@@ -15,4 +15,4 @@ class PertModule(PertBase):
         
         self.lcd.set_line(1, "Up: %s" % time.strip(', '))
         self.lcd.set_line(2, "Load: %s %s %s" % load)
-        self.lcd.set_line(4, thetime.strftime('%d %b      %H:%M:%S'))
+        self.lcd.set_line(4, thetime.strftime('%H:%M:%S      %d %b'))
